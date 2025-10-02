@@ -96,7 +96,7 @@ export function BudgetQuestionnaire({ onComplete }: BudgetQuestionnaireProps) {
               <div
                 key={i}
                 className={`flex-1 h-2 rounded-full transition ${
-                  i < step ? 'bg-emerald-500' : 'bg-gray-200'
+                  i < step ? 'bg-secondary-500' : 'bg-gray-200'
                 }`}
               />
             ))}
@@ -129,7 +129,7 @@ export function BudgetQuestionnaire({ onComplete }: BudgetQuestionnaireProps) {
                       monthly_income: parseFloat(e.target.value) || 0,
                     })
                   }
-                  className="w-full px-4 py-3 text-lg rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  className="w-full px-4 py-3 text-lg rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary-500 focus:border-transparent"
                   placeholder="2500.00"
                 />
               </div>
@@ -162,14 +162,14 @@ export function BudgetQuestionnaire({ onComplete }: BudgetQuestionnaireProps) {
                     }
                     className={`p-4 rounded-lg border-2 transition text-left ${
                       formData.top_spending_category === category
-                        ? 'border-emerald-500 bg-emerald-50'
+                        ? 'border-secondary-500 bg-primary-50'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-gray-900">{category}</span>
                       {formData.top_spending_category === category && (
-                        <CheckCircle className="w-5 h-5 text-emerald-500" />
+                        <CheckCircle className="w-5 h-5 text-primary-500" />
                       )}
                     </div>
                   </button>
@@ -230,7 +230,7 @@ export function BudgetQuestionnaire({ onComplete }: BudgetQuestionnaireProps) {
                   <span className="text-sm font-medium text-gray-700">
                     Savings Goal
                   </span>
-                  <span className="text-2xl font-bold text-emerald-600">
+                  <span className="text-2xl font-bold text-secondary-600">
                     {formData.savings_goal_percentage}%
                   </span>
                 </div>
@@ -257,11 +257,11 @@ export function BudgetQuestionnaire({ onComplete }: BudgetQuestionnaireProps) {
                 </div>
               </div>
 
-              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 mt-6">
+              <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 mt-6">
                 <p className="text-sm font-medium text-emerald-900 mb-1">
                   You'll save ${((formData.monthly_income * formData.savings_goal_percentage) / 100).toFixed(2)} per month
                 </p>
-                <p className="text-sm text-emerald-700">
+                <p className="text-sm text-secondary-700">
                   That's ${(((formData.monthly_income * formData.savings_goal_percentage) / 100) * 12).toFixed(2)} per year!
                 </p>
               </div>
@@ -286,14 +286,14 @@ export function BudgetQuestionnaire({ onComplete }: BudgetQuestionnaireProps) {
                     onClick={() => toggleGoal(goal)}
                     className={`w-full p-4 rounded-lg border-2 transition text-left ${
                       formData.financial_goals.includes(goal)
-                        ? 'border-emerald-500 bg-emerald-50'
+                        ? 'border-secondary-500 bg-primary-50'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-gray-900">{goal}</span>
                       {formData.financial_goals.includes(goal) && (
-                        <CheckCircle className="w-5 h-5 text-emerald-500" />
+                        <CheckCircle className="w-5 h-5 text-primary-500" />
                       )}
                     </div>
                   </button>
@@ -309,7 +309,7 @@ export function BudgetQuestionnaire({ onComplete }: BudgetQuestionnaireProps) {
                   onChange={(e) =>
                     setFormData({ ...formData, spending_habits: e.target.value })
                   }
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary-500 focus:border-transparent resize-none"
                   rows={3}
                   placeholder="e.g., I order food delivery often, I need to save for tuition..."
                 />
@@ -332,7 +332,7 @@ export function BudgetQuestionnaire({ onComplete }: BudgetQuestionnaireProps) {
             disabled={!canProceed()}
             className={`ml-auto flex items-center px-6 py-3 rounded-lg font-medium transition ${
               canProceed()
-                ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                ? 'bg-secondary-500 text-white hover:bg-secondary-600'
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
           >

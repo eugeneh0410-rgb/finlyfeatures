@@ -32,11 +32,11 @@ export function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-yellow-50 to-secondary-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="flex items-center justify-center mb-8">
-            <div className="bg-emerald-500 p-3 rounded-xl">
+            <div className="bg-secondary-500 p-3 rounded-xl">
               <DollarSign className="w-8 h-8 text-white" />
             </div>
           </div>
@@ -58,7 +58,7 @@ export function Auth() {
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary-500 focus:border-transparent transition"
                   required
                   placeholder="John Doe"
                 />
@@ -103,7 +103,7 @@ export function Auth() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-emerald-500 text-white py-3 rounded-lg font-semibold hover:bg-emerald-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-secondary-500 text-white py-3 rounded-lg font-semibold hover:bg-secondary-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
             </button>
@@ -115,7 +115,7 @@ export function Auth() {
                 setIsSignUp(!isSignUp);
                 setError('');
               }}
-              className="text-emerald-600 hover:text-emerald-700 text-sm font-medium"
+              className="text-secondary-600 hover:text-secondary-700 text-sm font-medium"
             >
               {isSignUp
                 ? 'Already have an account? Sign In'

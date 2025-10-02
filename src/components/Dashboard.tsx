@@ -82,7 +82,7 @@ export function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary-500"></div>
       </div>
     );
   }
@@ -98,8 +98,8 @@ export function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="bg-emerald-100 p-3 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-emerald-600" />
+            <div className="bg-primary-200 p-3 rounded-lg">
+              <TrendingUp className="w-6 h-6 text-secondary-600" />
             </div>
           </div>
           <p className="text-sm text-gray-600 mb-1">Monthly Income</p>
@@ -122,20 +122,20 @@ export function Dashboard() {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className={`${balance >= 0 ? 'bg-emerald-100' : 'bg-orange-100'} p-3 rounded-lg`}>
-              <DollarSign className={`w-6 h-6 ${balance >= 0 ? 'text-emerald-600' : 'text-orange-600'}`} />
+            <div className={`${balance >= 0 ? 'bg-primary-200' : 'bg-orange-100'} p-3 rounded-lg`}>
+              <DollarSign className={`w-6 h-6 ${balance >= 0 ? 'text-secondary-600' : 'text-orange-600'}`} />
             </div>
           </div>
           <p className="text-sm text-gray-600 mb-1">Balance</p>
-          <p className={`text-2xl font-bold ${balance >= 0 ? 'text-emerald-600' : 'text-orange-600'}`}>
+          <p className={`text-2xl font-bold ${balance >= 0 ? 'text-secondary-600' : 'text-orange-600'}`}>
             ${Math.abs(balance).toFixed(2)}
           </p>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="bg-blue-100 p-3 rounded-lg">
-              <Target className="w-6 h-6 text-blue-600" />
+            <div className="bg-secondary-100 p-3 rounded-lg">
+              <Target className="w-6 h-6 text-secondary-600" />
             </div>
           </div>
           <p className="text-sm text-gray-600 mb-1">Savings Progress</p>
@@ -144,7 +144,7 @@ export function Dashboard() {
           </p>
           <div className="mt-3 bg-gray-200 rounded-full h-2">
             <div
-              className="bg-blue-600 rounded-full h-2 transition-all"
+              className="bg-secondary-600 rounded-full h-2 transition-all"
               style={{ width: `${stats.savingsProgress}%` }}
             ></div>
           </div>
@@ -153,8 +153,8 @@ export function Dashboard() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center mb-4">
-          <div className="bg-purple-100 p-3 rounded-lg mr-4">
-            <BookOpen className="w-6 h-6 text-purple-600" />
+          <div className="bg-primary-200 p-3 rounded-lg mr-4">
+            <BookOpen className="w-6 h-6 text-secondary-600" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900">Learning Progress</h3>
@@ -164,7 +164,7 @@ export function Dashboard() {
         <div className="flex items-center">
           <div className="flex-1 bg-gray-200 rounded-full h-3">
             <div
-              className="bg-purple-600 rounded-full h-3 transition-all"
+              className="bg-secondary-600 rounded-full h-3 transition-all"
               style={{ width: `${stats.learningProgress}%` }}
             ></div>
           </div>

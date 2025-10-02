@@ -300,7 +300,7 @@ export function Budgeting() {
   if (loading && hasProfile === null) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary-500"></div>
       </div>
     );
   }
@@ -331,22 +331,22 @@ export function Budgeting() {
       </div>
 
       {budgetProfile && (
-        <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg p-6 text-white">
+        <div className="bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl shadow-lg p-6 text-white">
           <h3 className="text-xl font-bold mb-4">Your Personalized Budget Plan</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-              <p className="text-emerald-100 text-sm mb-1">Monthly Income</p>
+              <p className="text-primary-100 text-sm mb-1">Monthly Income</p>
               <p className="text-2xl font-bold">${budgetProfile.monthly_income.toFixed(2)}</p>
             </div>
 
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-              <p className="text-emerald-100 text-sm mb-1">Savings Goal ({budgetProfile.savings_goal_percentage}%)</p>
+              <p className="text-primary-100 text-sm mb-1">Savings Goal ({budgetProfile.savings_goal_percentage}%)</p>
               <p className="text-2xl font-bold">${savingsGoalAmount.toFixed(2)}</p>
             </div>
 
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-              <p className="text-emerald-100 text-sm mb-1">Spending Budget</p>
+              <p className="text-primary-100 text-sm mb-1">Spending Budget</p>
               <p className="text-2xl font-bold">${spendingBudget.toFixed(2)}</p>
             </div>
           </div>
@@ -357,7 +357,7 @@ export function Budgeting() {
                 <Target className="w-5 h-5 mr-2" />
                 <p className="font-semibold">Your Financial Goals</p>
               </div>
-              <ul className="space-y-1 text-sm text-emerald-100">
+              <ul className="space-y-1 text-sm text-primary-100">
                 {budgetProfile.financial_goals.map((goal, idx) => (
                   <li key={idx}>• {goal}</li>
                 ))}
@@ -369,10 +369,10 @@ export function Budgeting() {
                 <AlertCircle className="w-5 h-5 mr-2" />
                 <p className="font-semibold">Focus Areas</p>
               </div>
-              <p className="text-sm text-emerald-100 mb-1">
+              <p className="text-sm text-primary-100 mb-1">
                 <span className="font-medium">Top spending:</span> {budgetProfile.top_spending_category}
               </p>
-              <p className="text-sm text-emerald-100">
+              <p className="text-sm text-primary-100">
                 <span className="font-medium">Cut back on:</span> {budgetProfile.cut_spending_category}
               </p>
             </div>
@@ -385,7 +385,7 @@ export function Budgeting() {
           onClick={() => setActiveTab('transactions')}
           className={`flex-1 px-4 py-2 rounded-md font-medium transition ${
             activeTab === 'transactions'
-              ? 'bg-white text-emerald-600 shadow-sm'
+              ? 'bg-white text-secondary-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -395,7 +395,7 @@ export function Budgeting() {
           onClick={() => setActiveTab('savings')}
           className={`flex-1 px-4 py-2 rounded-md font-medium transition ${
             activeTab === 'savings'
-              ? 'bg-white text-emerald-600 shadow-sm'
+              ? 'bg-white text-secondary-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -405,7 +405,7 @@ export function Budgeting() {
           onClick={() => setActiveTab('friends')}
           className={`flex-1 px-4 py-2 rounded-md font-medium transition ${
             activeTab === 'friends'
-              ? 'bg-white text-emerald-600 shadow-sm'
+              ? 'bg-white text-secondary-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -417,7 +417,7 @@ export function Budgeting() {
         <div className="space-y-4">
           <button
             onClick={() => setShowAddTransaction(!showAddTransaction)}
-            className="flex items-center px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition"
+            className="flex items-center px-4 py-2 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 transition"
           >
             <Plus className="w-5 h-5 mr-2" />
             Add Transaction
@@ -444,7 +444,7 @@ export function Budgeting() {
                     onClick={() => setTransactionForm({ ...transactionForm, type: 'income' })}
                     className={`flex-1 py-2 rounded-lg font-medium transition ${
                       transactionForm.type === 'income'
-                        ? 'bg-emerald-500 text-white'
+                        ? 'bg-secondary-500 text-white'
                         : 'bg-gray-100 text-gray-600'
                     }`}
                   >
@@ -460,7 +460,7 @@ export function Budgeting() {
                       step="0.01"
                       value={transactionForm.amount}
                       onChange={(e) => setTransactionForm({ ...transactionForm, amount: e.target.value })}
-                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary-500 focus:border-transparent"
                       required
                     />
                   </div>
@@ -470,7 +470,7 @@ export function Budgeting() {
                     <select
                       value={transactionForm.category}
                       onChange={(e) => setTransactionForm({ ...transactionForm, category: e.target.value })}
-                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary-500 focus:border-transparent"
                       required
                     >
                       <option value="">Select category</option>
@@ -489,7 +489,7 @@ export function Budgeting() {
                     type="date"
                     value={transactionForm.date}
                     onChange={(e) => setTransactionForm({ ...transactionForm, date: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary-500 focus:border-transparent"
                     required
                   />
                 </div>
@@ -500,7 +500,7 @@ export function Budgeting() {
                     type="text"
                     value={transactionForm.description}
                     onChange={(e) => setTransactionForm({ ...transactionForm, description: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary-500 focus:border-transparent"
                     placeholder="Optional"
                   />
                 </div>
@@ -508,7 +508,7 @@ export function Budgeting() {
                 <div className="flex space-x-3">
                   <button
                     type="submit"
-                    className="flex-1 bg-emerald-500 text-white py-2 rounded-lg font-medium hover:bg-emerald-600 transition"
+                    className="flex-1 bg-secondary-500 text-white py-2 rounded-lg font-medium hover:bg-secondary-600 transition"
                   >
                     Add Transaction
                   </button>
@@ -527,7 +527,7 @@ export function Budgeting() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             {loading ? (
               <div className="flex items-center justify-center p-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary-500"></div>
               </div>
             ) : transactions.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
@@ -541,11 +541,11 @@ export function Budgeting() {
                       <div className="flex items-center space-x-4">
                         <div
                           className={`p-2 rounded-lg ${
-                            transaction.type === 'income' ? 'bg-emerald-100' : 'bg-red-100'
+                            transaction.type === 'income' ? 'bg-primary-200' : 'bg-red-100'
                           }`}
                         >
                           {transaction.type === 'income' ? (
-                            <TrendingUp className="w-5 h-5 text-emerald-600" />
+                            <TrendingUp className="w-5 h-5 text-secondary-600" />
                           ) : (
                             <TrendingDown className="w-5 h-5 text-red-600" />
                           )}
@@ -561,7 +561,7 @@ export function Budgeting() {
                       <div className="flex items-center space-x-4">
                         <p
                           className={`text-lg font-semibold ${
-                            transaction.type === 'income' ? 'text-emerald-600' : 'text-red-600'
+                            transaction.type === 'income' ? 'text-secondary-600' : 'text-red-600'
                           }`}
                         >
                           {transaction.type === 'income' ? '+' : '-'}${Number(transaction.amount).toFixed(2)}
@@ -586,7 +586,7 @@ export function Budgeting() {
         <div className="space-y-4">
           <button
             onClick={() => setShowAddSavings(!showAddSavings)}
-            className="flex items-center px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition"
+            className="flex items-center px-4 py-2 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 transition"
           >
             <Plus className="w-5 h-5 mr-2" />
             New Savings Goal
@@ -602,7 +602,7 @@ export function Budgeting() {
                     type="text"
                     value={savingsForm.name}
                     onChange={(e) => setSavingsForm({ ...savingsForm, name: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary-500 focus:border-transparent"
                     placeholder="e.g., Emergency Fund"
                     required
                   />
@@ -616,7 +616,7 @@ export function Budgeting() {
                       step="0.01"
                       value={savingsForm.goal_amount}
                       onChange={(e) => setSavingsForm({ ...savingsForm, goal_amount: e.target.value })}
-                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary-500 focus:border-transparent"
                       required
                     />
                   </div>
@@ -628,7 +628,7 @@ export function Budgeting() {
                       step="0.01"
                       value={savingsForm.current_amount}
                       onChange={(e) => setSavingsForm({ ...savingsForm, current_amount: e.target.value })}
-                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary-500 focus:border-transparent"
                       required
                     />
                   </div>
@@ -640,7 +640,7 @@ export function Budgeting() {
                     id="is_public"
                     checked={savingsForm.is_public}
                     onChange={(e) => setSavingsForm({ ...savingsForm, is_public: e.target.checked })}
-                    className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+                    className="w-4 h-4 text-secondary-600 border-gray-300 rounded focus:ring-secondary-500"
                   />
                   <label htmlFor="is_public" className="ml-2 text-sm text-gray-700">
                     Share with friends
@@ -650,7 +650,7 @@ export function Budgeting() {
                 <div className="flex space-x-3">
                   <button
                     type="submit"
-                    className="flex-1 bg-emerald-500 text-white py-2 rounded-lg font-medium hover:bg-emerald-600 transition"
+                    className="flex-1 bg-secondary-500 text-white py-2 rounded-lg font-medium hover:bg-secondary-600 transition"
                   >
                     Create Goal
                   </button>
@@ -669,7 +669,7 @@ export function Budgeting() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {loading ? (
               <div className="col-span-2 flex items-center justify-center p-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary-500"></div>
               </div>
             ) : savings.length === 0 ? (
               <div className="col-span-2 text-center py-12 text-gray-500 bg-white rounded-xl border border-gray-200">
@@ -703,7 +703,7 @@ export function Budgeting() {
 
                       <div className="bg-gray-200 rounded-full h-2">
                         <div
-                          className="bg-emerald-500 rounded-full h-2 transition-all"
+                          className="bg-secondary-500 rounded-full h-2 transition-all"
                           style={{ width: `${Math.min(progress, 100)}%` }}
                         ></div>
                       </div>
@@ -729,7 +729,7 @@ export function Budgeting() {
                               handleUpdateSavings(account.id, newAmount);
                             }
                           }}
-                          className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                          className="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary-500 focus:border-transparent"
                         />
                       </div>
                     </div>
@@ -757,7 +757,7 @@ export function Budgeting() {
 
           {loading ? (
             <div className="flex items-center justify-center p-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary-500"></div>
             </div>
           ) : friendsSavings.length === 0 ? (
             <div className="text-center py-12 text-gray-500 bg-white rounded-xl border border-gray-200">
@@ -770,8 +770,8 @@ export function Budgeting() {
                 return (
                   <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center mb-4">
-                      <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mr-3">
-                        <span className="text-emerald-600 font-semibold">
+                      <div className="w-10 h-10 bg-primary-200 rounded-full flex items-center justify-center mr-3">
+                        <span className="text-secondary-600 font-semibold">
                           {saving.friend_name.charAt(0).toUpperCase()}
                         </span>
                       </div>
@@ -789,7 +789,7 @@ export function Budgeting() {
 
                       <div className="bg-gray-200 rounded-full h-2">
                         <div
-                          className="bg-emerald-500 rounded-full h-2 transition-all"
+                          className="bg-secondary-500 rounded-full h-2 transition-all"
                           style={{ width: `${Math.min(progress, 100)}%` }}
                         ></div>
                       </div>

@@ -175,7 +175,7 @@ export function Learning() {
           onClick={() => setActiveTab('modules')}
           className={`flex-1 px-4 py-2 rounded-md font-medium transition ${
             activeTab === 'modules'
-              ? 'bg-white text-purple-600 shadow-sm'
+              ? 'bg-white text-secondary-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -185,7 +185,7 @@ export function Learning() {
           onClick={() => setActiveTab('ai')}
           className={`flex-1 px-4 py-2 rounded-md font-medium transition ${
             activeTab === 'ai'
-              ? 'bg-white text-purple-600 shadow-sm'
+              ? 'bg-white text-secondary-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -197,7 +197,7 @@ export function Learning() {
         <div className="space-y-4">
           {loading ? (
             <div className="flex items-center justify-center p-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary-500"></div>
             </div>
           ) : modules.length === 0 ? (
             <div className="text-center py-12 text-gray-500 bg-white rounded-xl border border-gray-200">
@@ -216,11 +216,11 @@ export function Learning() {
                       <div className="flex items-start space-x-4 flex-1">
                         <div
                           className={`p-3 rounded-lg ${
-                            module.type === 'video' ? 'bg-purple-100' : 'bg-blue-100'
+                            module.type === 'video' ? 'bg-primary-200' : 'bg-blue-100'
                           }`}
                         >
                           {module.type === 'video' ? (
-                            <Video className="w-6 h-6 text-purple-600" />
+                            <Video className="w-6 h-6 text-secondary-600" />
                           ) : (
                             <FileText className="w-6 h-6 text-blue-600" />
                           )}
@@ -252,7 +252,7 @@ export function Learning() {
                               href={module.content_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition text-sm font-medium"
+                              className="px-4 py-2 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 transition text-sm font-medium"
                             >
                               Start Learning
                             </a>
@@ -290,7 +290,7 @@ export function Learning() {
         <div className="space-y-4">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center mb-4">
-              <MessageCircle className="w-6 h-6 text-purple-600 mr-3" />
+              <MessageCircle className="w-6 h-6 text-secondary-600 mr-3" />
               <h3 className="text-lg font-semibold text-gray-900">Ask Your Financial Questions</h3>
             </div>
 
@@ -299,7 +299,7 @@ export function Learning() {
                 value={newQuestion}
                 onChange={(e) => setNewQuestion(e.target.value)}
                 placeholder="Ask anything about budgeting, saving, investing, credit scores, or managing money..."
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-secondary-500 focus:border-transparent resize-none"
                 rows={3}
                 required
               />
@@ -307,7 +307,7 @@ export function Learning() {
               <button
                 type="submit"
                 disabled={askingAI || !newQuestion.trim()}
-                className="flex items-center px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center px-6 py-2 bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send className="w-4 h-4 mr-2" />
                 {askingAI ? 'Thinking...' : 'Ask Question'}
@@ -317,7 +317,7 @@ export function Learning() {
 
           {loading ? (
             <div className="flex items-center justify-center p-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary-500"></div>
             </div>
           ) : aiQuestions.length === 0 ? (
             <div className="text-center py-12 text-gray-500 bg-white rounded-xl border border-gray-200">
@@ -328,8 +328,8 @@ export function Learning() {
               {aiQuestions.map((qa) => (
                 <div key={qa.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <div className="flex items-start space-x-4">
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <MessageCircle className="w-4 h-4 text-purple-600" />
+                    <div className="w-8 h-8 bg-primary-200 rounded-full flex items-center justify-center flex-shrink-0">
+                      <MessageCircle className="w-4 h-4 text-secondary-600" />
                     </div>
                     <div className="flex-1">
                       <p className="font-semibold text-gray-900 mb-2">{qa.question}</p>

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Plus, TrendingUp, TrendingDown, CreditCard as Edit2, Trash2, Users, Lock, Unlock } from 'lucide-react';
+import { Plus, TrendingUp, TrendingDown, Trash2, Users, Lock, Unlock, Target, AlertCircle, CreditCard as Edit } from 'lucide-react';
+import { BudgetQuestionnaire, QuestionnaireData } from './BudgetQuestionnaire';
 
 interface Transaction {
   id: string;
@@ -27,8 +28,19 @@ interface FriendSavings {
   friend_name: string;
 }
 
+interface BudgetProfile {
+  monthly_income: number;
+  top_spending_category: string;
+  cut_spending_category: string;
+  savings_goal_percentage: number;
+  financial_goals: string[];
+  spending_habits: string;
+}
+
 export function Budgeting() {
   const { user } = useAuth();
+  const [hasProfile, setHasProfile] = useState<boolean | null>(null);
+  const [budgetProfile, setBudgetProfile] = useState<BudgetProfile | null>(null);
   const [activeTab, setActiveTab] = useState<'transactions' | 'savings' | 'friends'>('transactions');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [savings, setSavings] = useState<SavingsAccount[]>([]);
@@ -53,8 +65,73 @@ export function Budgeting() {
   });
 
   useEffect(() => {
-    loadData();
-  }, [user, activeTab]);
+    checkBudgetProfile();
+  }, [user]);
+
+  useEffect(() => {
+    if (hasProfile) {
+      loadData();
+    }
+  }, [user, activeTab, hasProfile]);
+
+  const checkBudgetProfile = async () => {
+    if (!user) return;
+
+    try {
+      const { data } = await supabase
+        .from('budget_profile')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (data) {
+        setBudgetProfile(data);
+        setHasProfile(true);
+      } else {
+        setHasProfile(false);
+      }
+    } catch (error) {
+      console.error('Error checking budget profile:', error);
+      setHasProfile(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleQuestionnaireComplete = async (data: QuestionnaireData) => {
+    if (!user) return;
+
+    try {
+      await supabase.from('budget_profile').insert({
+        user_id: user.id,
+        ...data,
+      });
+
+      setBudgetProfile(data);
+      setHasProfile(true);
+    } catch (error) {
+      console.error('Error saving budget profile:', error);
+    }
+  };
+
+  const handleResetProfile = async () => {
+    if (!user) return;
+
+    const confirm = window.confirm('Are you sure you want to reset your budget profile? This will allow you to retake the questionnaire.');
+    if (!confirm) return;
+
+    try {
+      await supabase
+        .from('budget_profile')
+        .delete()
+        .eq('user_id', user.id);
+
+      setBudgetProfile(null);
+      setHasProfile(false);
+    } catch (error) {
+      console.error('Error resetting profile:', error);
+    }
+  };
 
   const loadData = async () => {
     if (!user) return;
@@ -220,11 +297,88 @@ export function Budgeting() {
     'Other',
   ];
 
+  if (loading && hasProfile === null) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
+      </div>
+    );
+  }
+
+  if (hasProfile === false) {
+    return <BudgetQuestionnaire onComplete={handleQuestionnaireComplete} />;
+  }
+
+  const savingsGoalAmount = budgetProfile
+    ? (budgetProfile.monthly_income * budgetProfile.savings_goal_percentage) / 100
+    : 0;
+
+  const spendingBudget = budgetProfile
+    ? budgetProfile.monthly_income - savingsGoalAmount
+    : 0;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Budgeting & Savings</h2>
+        <button
+          onClick={handleResetProfile}
+          className="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+        >
+          <Edit className="w-4 h-4 mr-2" />
+          Retake Quiz
+        </button>
       </div>
+
+      {budgetProfile && (
+        <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg p-6 text-white">
+          <h3 className="text-xl font-bold mb-4">Your Personalized Budget Plan</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <p className="text-emerald-100 text-sm mb-1">Monthly Income</p>
+              <p className="text-2xl font-bold">${budgetProfile.monthly_income.toFixed(2)}</p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <p className="text-emerald-100 text-sm mb-1">Savings Goal ({budgetProfile.savings_goal_percentage}%)</p>
+              <p className="text-2xl font-bold">${savingsGoalAmount.toFixed(2)}</p>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <p className="text-emerald-100 text-sm mb-1">Spending Budget</p>
+              <p className="text-2xl font-bold">${spendingBudget.toFixed(2)}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <div className="flex items-center mb-2">
+                <Target className="w-5 h-5 mr-2" />
+                <p className="font-semibold">Your Financial Goals</p>
+              </div>
+              <ul className="space-y-1 text-sm text-emerald-100">
+                {budgetProfile.financial_goals.map((goal, idx) => (
+                  <li key={idx}>• {goal}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+              <div className="flex items-center mb-2">
+                <AlertCircle className="w-5 h-5 mr-2" />
+                <p className="font-semibold">Focus Areas</p>
+              </div>
+              <p className="text-sm text-emerald-100 mb-1">
+                <span className="font-medium">Top spending:</span> {budgetProfile.top_spending_category}
+              </p>
+              <p className="text-sm text-emerald-100">
+                <span className="font-medium">Cut back on:</span> {budgetProfile.cut_spending_category}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
         <button

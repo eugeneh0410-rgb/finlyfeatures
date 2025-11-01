@@ -5,10 +5,11 @@ import { Layout } from './components/Layout';
 import { Dashboard } from './components/Dashboard';
 import { Budgeting } from './components/Budgeting';
 import { Learning } from './components/Learning';
+import { Profile } from './components/Profile';
 
 function AppContent() {
   const { user, loading } = useAuth();
-  const [activeView, setActiveView] = useState<'dashboard' | 'budgeting' | 'learning'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard' | 'budgeting' | 'learning' | 'profile'>('dashboard');
 
   if (loading) {
     return (
@@ -27,6 +28,7 @@ function AppContent() {
       {activeView === 'dashboard' && <Dashboard />}
       {activeView === 'budgeting' && <Budgeting />}
       {activeView === 'learning' && <Learning />}
+      {activeView === 'profile' && <Profile />}
     </Layout>
   );
 }

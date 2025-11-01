@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, Wallet, BookOpen, LogOut, Menu, X, DollarSign } from 'lucide-react';
+import { LayoutDashboard, Wallet, BookOpen, LogOut, Menu, X, DollarSign, User } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
-  activeView: 'dashboard' | 'budgeting' | 'learning';
-  onViewChange: (view: 'dashboard' | 'budgeting' | 'learning') => void;
+  activeView: 'dashboard' | 'budgeting' | 'learning' | 'profile';
+  onViewChange: (view: 'dashboard' | 'budgeting' | 'learning' | 'profile') => void;
 }
 
 export function Layout({ children, activeView, onViewChange }: LayoutProps) {
@@ -20,6 +20,7 @@ export function Layout({ children, activeView, onViewChange }: LayoutProps) {
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'budgeting', label: 'Budgeting', icon: Wallet },
     { id: 'learning', label: 'Learning', icon: BookOpen },
+    { id: 'profile', label: 'Profile', icon: User },
   ] as const;
 
   return (

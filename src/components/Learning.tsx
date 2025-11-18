@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { BookOpen, Video, FileText, Check, Send, MessageCircle, Calendar, Target, Clock, Plus, X } from 'lucide-react';
+import { checkAchievementsAfterAction } from '../lib/achievements';
 
 interface LearningModule {
   id: string;
@@ -143,6 +144,11 @@ export function Learning() {
       }
 
       loadData();
+      
+      // Check achievements (Finance Freshman, Knowledge Knight, Investment Intern)
+      if (user) {
+        await checkAchievementsAfterAction(user.id, 'learning');
+      }
     } catch (error) {
       console.error('Error updating progress:', error);
     }

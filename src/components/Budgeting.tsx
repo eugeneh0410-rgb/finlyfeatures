@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Plus, TrendingUp, TrendingDown, Trash2, Users, Lock, Unlock, Target, AlertCircle, CreditCard as Edit } from 'lucide-react';
 import { BudgetQuestionnaire, QuestionnaireData } from './BudgetQuestionnaire';
+import { checkAchievementsAfterAction } from '../lib/achievements';
 
 interface Transaction {
   id: string;
@@ -109,6 +110,9 @@ export function Budgeting() {
 
       setBudgetProfile(data);
       setHasProfile(true);
+      
+      // Check achievements (Plan Pioneer)
+      await checkAchievementsAfterAction(user.id, 'budget');
     } catch (error) {
       console.error('Error saving budget profile:', error);
     }
@@ -219,6 +223,9 @@ export function Budgeting() {
       });
       setShowAddTransaction(false);
       loadData();
+      
+      // Check achievements (Number Ninja, Expense Explorer)
+      await checkAchievementsAfterAction(user.id, 'transaction');
     } catch (error) {
       console.error('Error adding transaction:', error);
     }
@@ -245,6 +252,9 @@ export function Budgeting() {
       });
       setShowAddSavings(false);
       loadData();
+      
+      // Check achievements (Goal Getter)
+      await checkAchievementsAfterAction(user.id, 'savings');
     } catch (error) {
       console.error('Error adding savings:', error);
     }
@@ -260,12 +270,17 @@ export function Budgeting() {
   };
 
   const handleUpdateSavings = async (id: string, amount: number) => {
+    if (!user) return;
+    
     try {
       await supabase
         .from('savings_accounts')
         .update({ current_amount: amount })
         .eq('id', id);
       loadData();
+      
+      // Check achievements (Rainy Day Rookie, Piggy Bank Pro, Treasure Tracker, Money Maestro)
+      await checkAchievementsAfterAction(user.id, 'savings');
     } catch (error) {
       console.error('Error updating savings:', error);
     }

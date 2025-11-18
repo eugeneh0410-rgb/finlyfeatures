@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, AuthError } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { checkAchievementsAfterAction } from '../lib/achievements';
 
 interface AuthContextType {
   user: User | null;
@@ -17,15 +18,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      // Update login streak when session is loaded
+      if (session?.user) {
+        await checkAchievementsAfterAction(session.user.id, 'login');
+      }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      (async () => {
-        setUser(session?.user ?? null);
-      })();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null);
+      
+      // Update login streak on sign in
+      if (event === 'SIGNED_IN' && session?.user) {
+        await checkAchievementsAfterAction(session.user.id, 'login');
+      }
     });
 
     return () => subscription.unsubscribe();

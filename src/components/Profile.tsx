@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { User, Mail, Edit2, Save, X, Plus, UserPlus, Trophy, Loader, Bell, Search, CheckCircle } from 'lucide-react';
+import { checkAchievementsAfterAction, checkAllAchievements } from '../lib/achievements';
 
 interface UserProfile {
   id: string;
@@ -96,6 +97,14 @@ export function Profile() {
     loadFriends();
     loadSuggestedUsers();
     loadNotifications();
+    
+    // Check for any missed achievements when profile loads
+    if (user) {
+      checkAllAchievements(user.id).then(() => {
+        // Reload badges after checking achievements
+        loadBadges();
+      });
+    }
   }, [user]);
 
   useEffect(() => {
@@ -411,6 +420,9 @@ export function Profile() {
       loadSuggestedUsers();
       loadExploreUsers();
       loadFriends();
+      
+      // Check achievements (Finance Friend)
+      await checkAchievementsAfterAction(user.id, 'friend');
     } catch (error) {
       console.error('Error adding friend:', error);
     }
@@ -432,6 +444,12 @@ export function Profile() {
       loadFriends();
       loadPendingRequests();
       loadNotifications();
+      
+      // Check achievements (Finance Friend)
+      if (user) {
+        await checkAchievementsAfterAction(user.id, 'friend');
+        await checkAchievementsAfterAction(friendId, 'friend');
+      }
     } catch (error) {
       console.error('Error accepting request:', error);
     }

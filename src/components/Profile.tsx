@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { User, Mail, Edit2, Save, X, Plus, UserPlus, Trophy, Loader } from 'lucide-react';
+import { User, Mail, Edit2, Save, X, Plus, UserPlus, Trophy, Loader, Bell, Search, CheckCircle } from 'lucide-react';
 
 interface UserProfile {
   id: string;
@@ -39,6 +39,25 @@ interface Friend {
   nickname: string;
 }
 
+interface Notification {
+  id: string;
+  type: 'friend_request' | 'friend_accepted' | 'achievement_earned' | 'friend_achievement';
+  title: string;
+  message: string;
+  related_user_id: string | null;
+  related_badge_id: string | null;
+  read: boolean;
+  created_at: string;
+}
+
+interface ExploreUser {
+  id: string;
+  full_name: string;
+  nickname: string | null;
+  picture_url: string | null;
+  friend_status: 'none' | 'pending_sent' | 'pending_received' | 'accepted';
+}
+
 const badgeIcons: Record<string, any> = {
   Trophy: Trophy,
   Target: Edit2,
@@ -56,6 +75,12 @@ export function Profile() {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
   const [suggestedUsers, setSuggestedUsers] = useState<any[]>([]);
+  const [exploreUsers, setExploreUsers] = useState<ExploreUser[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showExplore, setShowExplore] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editForm, setEditForm] = useState({
@@ -70,7 +95,29 @@ export function Profile() {
     loadBadges();
     loadFriends();
     loadSuggestedUsers();
+    loadNotifications();
   }, [user]);
+
+  useEffect(() => {
+    if (showExplore) {
+      loadExploreUsers();
+    }
+  }, [user, showExplore, searchQuery]);
+
+  // Close notifications when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (showNotifications && !target.closest('.notification-panel') && !target.closest('.notification-button')) {
+        setShowNotifications(false);
+      }
+    };
+
+    if (showNotifications) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showNotifications]);
 
   const loadProfile = async () => {
     if (!user) return;
@@ -128,6 +175,8 @@ export function Profile() {
           earned_at: item.earned_at,
         }));
         setBadges(formattedBadges);
+        // Refresh notifications when badges are loaded (in case new achievements were earned)
+        loadNotifications();
       }
     } catch (error) {
       console.error('Error loading badges:', error);
@@ -215,6 +264,124 @@ export function Profile() {
     }
   };
 
+  const loadExploreUsers = async () => {
+    if (!user) return;
+
+    try {
+      // Get all users with search filter
+      let query = supabase
+        .from('profiles')
+        .select('id, full_name, nickname, picture_url')
+        .neq('id', user.id);
+
+      if (searchQuery) {
+        query = query.or(`full_name.ilike.%${searchQuery}%,nickname.ilike.%${searchQuery}%`);
+      }
+
+      const { data: allUsers } = await query.limit(50);
+
+      if (allUsers) {
+        // Get all friendships (sent, received, accepted)
+        const { data: allFriendships } = await supabase
+          .from('friendships')
+          .select('user_id, friend_id, status')
+          .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`);
+
+        // Get list of already accepted friends to exclude from explore
+        const acceptedFriendIds = allFriendships
+          ?.filter((f) => f.status === 'accepted')
+          .map((f) => (f.user_id === user.id ? f.friend_id : f.user_id)) || [];
+
+        // Map users with their friend status, excluding already accepted friends
+        const usersWithStatus: ExploreUser[] = allUsers
+          .filter((u) => !acceptedFriendIds.includes(u.id))
+          .map((u) => {
+          const friendship = allFriendships?.find(
+            (f) =>
+              (f.user_id === user.id && f.friend_id === u.id) ||
+              (f.friend_id === user.id && f.user_id === u.id)
+          );
+
+          let status: ExploreUser['friend_status'] = 'none';
+          if (friendship) {
+            if (friendship.status === 'accepted') {
+              status = 'accepted';
+            } else if (friendship.user_id === user.id) {
+              status = 'pending_sent';
+            } else {
+              status = 'pending_received';
+            }
+          }
+
+          return {
+            id: u.id,
+            full_name: u.full_name,
+            nickname: u.nickname,
+            picture_url: u.picture_url,
+            friend_status: status,
+          };
+        });
+
+        setExploreUsers(usersWithStatus);
+      }
+    } catch (error) {
+      console.error('Error loading explore users:', error);
+    }
+  };
+
+  const loadNotifications = async () => {
+    if (!user) return;
+
+    try {
+      const { data } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (data) {
+        setNotifications(data);
+        setUnreadCount(data.filter((n) => !n.read).length);
+      }
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    }
+  };
+
+  const markNotificationAsRead = async (notificationId: string) => {
+    try {
+      await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('id', notificationId);
+
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
+
+  const markAllNotificationsAsRead = async () => {
+    if (!user) return;
+
+    try {
+      await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('user_id', user.id)
+        .eq('read', false);
+
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+    }
+  };
+
   const handleUpdateProfile = async () => {
     if (!user) return;
 
@@ -242,6 +409,8 @@ export function Profile() {
       });
 
       loadSuggestedUsers();
+      loadExploreUsers();
+      loadFriends();
     } catch (error) {
       console.error('Error adding friend:', error);
     }
@@ -262,6 +431,7 @@ export function Profile() {
 
       loadFriends();
       loadPendingRequests();
+      loadNotifications();
     } catch (error) {
       console.error('Error accepting request:', error);
     }
@@ -273,6 +443,7 @@ export function Profile() {
 
       loadFriends();
       loadPendingRequests();
+      loadNotifications();
     } catch (error) {
       console.error('Error rejecting request:', error);
     }
@@ -327,7 +498,82 @@ export function Profile() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Profile</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Profile</h2>
+        <div className="relative">
+          <button
+            onClick={() => setShowNotifications(!showNotifications)}
+            className="notification-button relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+          >
+            <Bell className="w-6 h-6" />
+            {unreadCount > 0 && (
+              <span className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+
+          {showNotifications && (
+            <div className="notification-panel absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-lg border border-gray-200 z-50 max-h-96 overflow-hidden flex flex-col">
+              <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+                {unreadCount > 0 && (
+                  <button
+                    onClick={markAllNotificationsAsRead}
+                    className="text-sm text-secondary-600 hover:text-secondary-700"
+                  >
+                    Mark all as read
+                  </button>
+                )}
+              </div>
+              <div className="overflow-y-auto flex-1">
+                {notifications.length === 0 ? (
+                  <div className="p-8 text-center text-gray-500">
+                    <Bell className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                    <p>No notifications yet</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-200">
+                    {notifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        className={`p-4 hover:bg-gray-50 cursor-pointer transition ${
+                          !notification.read ? 'bg-blue-50' : ''
+                        }`}
+                        onClick={() => {
+                          if (!notification.read) {
+                            markNotificationAsRead(notification.id);
+                          }
+                          if (notification.type === 'friend_request' && notification.related_user_id) {
+                            setShowNotifications(false);
+                          }
+                        }}
+                      >
+                        <div className="flex items-start space-x-3">
+                          <div
+                            className={`w-2 h-2 rounded-full mt-2 ${
+                              !notification.read ? 'bg-secondary-500' : 'bg-transparent'
+                            }`}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-gray-900 text-sm">
+                              {notification.title}
+                            </p>
+                            <p className="text-gray-600 text-sm mt-1">{notification.message}</p>
+                            <p className="text-xs text-gray-400 mt-2">
+                              {new Date(notification.created_at).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
         <div className="flex items-start justify-between mb-6">
@@ -526,9 +772,18 @@ export function Profile() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-          <h3 className="text-xl font-bold text-gray-900 mb-6">
-            Explore & Add Friends
-          </h3>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-gray-900">
+              Explore & Add Friends
+            </h3>
+            <button
+              onClick={() => setShowExplore(!showExplore)}
+              className="flex items-center px-4 py-2 text-sm bg-secondary-500 text-white rounded-lg hover:bg-secondary-600 transition"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              {showExplore ? 'Hide' : 'Explore All Users'}
+            </button>
+          </div>
 
           {pendingRequests.length > 0 && (
             <div className="mb-6 pb-6 border-b border-gray-200">
@@ -541,13 +796,18 @@ export function Profile() {
                     key={request.id}
                     className="flex items-center justify-between p-3 bg-primary-50 rounded-lg"
                   >
-                    <div>
-                      <p className="font-medium text-gray-900">
-                        {request.full_name}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        "{request.nickname}"
-                      </p>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-primary-300 to-secondary-500 rounded-full flex items-center justify-center text-white">
+                        <User className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {request.full_name}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          "{request.nickname || 'Friend'}"
+                        </p>
+                      </div>
                     </div>
                     <div className="flex space-x-2">
                       <button
@@ -571,35 +831,128 @@ export function Profile() {
             </div>
           )}
 
-          {suggestedUsers.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
-              No suggestions available right now
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {suggestedUsers.map((suggestedUser) => (
-                <div
-                  key={suggestedUser.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      {suggestedUser.full_name}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      "{suggestedUser.nickname || 'Friend'}"
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => handleAddFriend(suggestedUser.id)}
-                    className="flex items-center px-3 py-1 text-sm bg-secondary-500 text-white rounded hover:bg-secondary-600 transition"
-                  >
-                    <Plus className="w-3 h-3 mr-1" />
-                    Add
-                  </button>
+          {showExplore ? (
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Search users by name or nickname..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-500 focus:border-transparent"
+                />
+              </div>
+
+              {exploreUsers.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">
+                  {searchQuery ? 'No users found' : 'Loading users...'}
+                </p>
+              ) : (
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {exploreUsers.map((exploreUser) => (
+                    <div
+                      key={exploreUser.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
+                    >
+                      <div className="flex items-center space-x-3 flex-1">
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary-300 to-secondary-500 rounded-full flex items-center justify-center text-white flex-shrink-0">
+                          {exploreUser.picture_url ? (
+                            <img
+                              src={exploreUser.picture_url}
+                              alt={exploreUser.full_name}
+                              className="w-full h-full rounded-full object-cover"
+                            />
+                          ) : (
+                            <User className="w-6 h-6" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 truncate">
+                            {exploreUser.full_name}
+                          </p>
+                          <p className="text-sm text-gray-600 truncate">
+                            "{exploreUser.nickname || 'No nickname'}"
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {exploreUser.friend_status === 'accepted' && (
+                          <span className="flex items-center text-sm text-emerald-600">
+                            <CheckCircle className="w-4 h-4 mr-1" />
+                            Friends
+                          </span>
+                        )}
+                        {exploreUser.friend_status === 'pending_sent' && (
+                          <span className="text-sm text-gray-500">Request Sent</span>
+                        )}
+                        {exploreUser.friend_status === 'pending_received' && (
+                          <button
+                            onClick={() =>
+                              handleAcceptRequest(
+                                pendingRequests.find((r) => r.user_id === exploreUser.id)?.id || '',
+                                exploreUser.id
+                              )
+                            }
+                            className="px-3 py-1 text-sm bg-secondary-500 text-white rounded hover:bg-secondary-600 transition"
+                          >
+                            Accept
+                          </button>
+                        )}
+                        {exploreUser.friend_status === 'none' && (
+                          <button
+                            onClick={() => handleAddFriend(exploreUser.id)}
+                            className="flex items-center px-3 py-1 text-sm bg-secondary-500 text-white rounded hover:bg-secondary-600 transition"
+                          >
+                            <Plus className="w-3 h-3 mr-1" />
+                            Add Friend
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
+          ) : (
+            <>
+              {suggestedUsers.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">
+                  No suggestions available right now. Click "Explore All Users" to find friends!
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-600 mb-3">Suggested for you:</p>
+                  {suggestedUsers.map((suggestedUser) => (
+                    <div
+                      key={suggestedUser.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-gradient-to-br from-primary-300 to-secondary-500 rounded-full flex items-center justify-center text-white">
+                          <User className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {suggestedUser.full_name}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            "{suggestedUser.nickname || 'Friend'}"
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleAddFriend(suggestedUser.id)}
+                        className="flex items-center px-3 py-1 text-sm bg-secondary-500 text-white rounded hover:bg-secondary-600 transition"
+                      >
+                        <Plus className="w-3 h-3 mr-1" />
+                        Add
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
